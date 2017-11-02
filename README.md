@@ -9,10 +9,11 @@ The API is implemented in Node.js and Express, the database is either in-memory 
 1. clone the code
 2. `npm install`
 3. To test that it works: `DBTYPE=inmemory npm start`
-  * it will be available on port 8080
+   * it will be available on port 8080
 4. To deploy in App Engine
-  1. change service name in `app.yaml`
-  2. `gcloud app deploy`
+   1. change service name in `app.yaml`
+   2. change namespace in `api/db-datastore.js`
+   3. `gcloud app deploy`
 
 ## Description
 
