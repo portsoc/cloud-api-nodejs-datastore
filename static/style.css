@@ -33,10 +33,61 @@ input:invalid + .errormessage {
   height: 10em;
 }
 
+#selectsection {
+  display: inline-block;
+  position: absolute;
+  left: 0;
+  background-color: #ddd;
+  z-index: 1;
+  padding: 0 1rem 5rem 4rem;
+  border-radius: 0 1rem 1rem 0;
+  min-height: 10em;
+}
+
+#selectsection.off {
+  visibility: hidden;
+}
+
+#selectsection > .opener {
+  height: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+  padding: 1em;
+  visibility: visible;
+  background-color: #ddd;
+  z-index: 1;
+  padding: 1rem;
+  border-radius: 0 1rem 1rem 0;
+  box-sizing: border-box;
+  width: 3em;
+  cursor: pointer;
+}
+
+#selectsection:not(.off) + #valuesection {
+  opacity: .3;
+}
+
+#selectsection > .opener:before {
+  display: inline;
+  font-size: 2em;
+  content: '<';
+}
+
+#selectsection.off > .opener:before {
+  content: '>';
+}
+
 #valuesection {
   display: inline-block;
-  position: relative;
-  padding-bottom: 1.5em;
+  position: absolute;
+  left: 4em;
+  padding: 0 0 1.5em;
+}
+
+#valuesection.notloaded h1.loaded,
+#valuesection:not(.notloaded) h1.notloaded {
+  display: none;
 }
 
 #save {
@@ -46,17 +97,6 @@ input:invalid + .errormessage {
   bottom: 0;
 }
 
-#load {
-  display: block;
-  margin: 1em 0;
-}
-
 button.pending {
-  box-shadow: 0 0 .7em .2em yellow;
   font-weight: bold;
-}
-
-#valuesection.notloaded h1.loaded,
-#valuesection:not(.notloaded) h1.notloaded {
-  display: none;
 }

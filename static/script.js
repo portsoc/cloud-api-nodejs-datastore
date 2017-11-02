@@ -2,105 +2,126 @@
 
 window.addEventListener('load', init);
 
+const els = {};
+
+function $(sel) { return document.querySelector(sel); }
+
 function init() {
+  els.fn = $('#filenamesel');
+  els.fnw = $('#filenamewritein');
+  els.load = $('#load');
+  els.save = $('#save');
+  els.cfn = $('#currfilename');
+  els.con = $('#filecontent');
+  els.vsec = $('#valuesection');
+  els.ssec = $('#selectsection');
+  els.sseco = $('#selectsection > .opener');
+
   loadFilenames();
-  id('filename').addEventListener('change', setWritein);
-  id('filename').addEventListener('change', load);
-  id('filenamewritein').addEventListener('input', setLoadPending);
-  id('load').addEventListener('click', load);
-  id('save').addEventListener('click', save);
+  els.fn.addEventListener('change', loadFromFN);
+  els.fnw.addEventListener('input', setLoadPending);
+  els.load.addEventListener('click', loadFromFNW);
+  els.save.addEventListener('click', save);
+  els.sseco.addEventListener('click', toggleSSec);
+}
+
+function toggleSSec() {
+  els.ssec.classList.toggle('off');
 }
 
 async function loadFilenames() {
-  const response = await fetch('/api/');
-  if (!response.ok) {
-    id('filename').innerHTML = '<option>error';
-    id('filename').disabled = true;
-    return;
-  }
-
-  const data = await response.json();
-  id('filename').disabled = false;
-  if (!Array.isArray(data) || data.length === 0) {
-    id('filename').innerHTML = '<option>no files';
-    id('filename').disabled = true;
-    return;
-  }
-
-  id('filename').innerHTML = '';
-  id('filenamewritein').value = data[0];
-  for (const item of data) {
-    const opt = document.createElement('option');
-    opt.textContent = item;
-    if (item === id('currfilename').textContent) {
-      opt.selected = true;
-      id('filenamewritein').value = item;
+  try {
+    const response = await fetch('/api/');
+    if (!response.ok) {
+      throw response;
     }
-    id('filename').appendChild(opt);
-  }
-}
 
-function setWritein(e) {
-  id('filenamewritein').value = e.target.value;
+    const data = await response.json();
+    els.fn.disabled = false;
+    if (!Array.isArray(data) || data.length === 0) {
+      els.fn.innerHTML = '<option>no files';
+      els.fn.disabled = true;
+      return;
+    }
+
+    els.fn.innerHTML = '<option disabled selected>select a file';
+    for (const item of data) {
+      const opt = document.createElement('option');
+      opt.textContent = item;
+      if (item === els.cfn.textContent) {
+        opt.selected = true;
+      }
+      els.fn.appendChild(opt);
+    }
+  } catch (e) {
+    els.fn.innerHTML = '<option>error';
+    console.error(e);
+    els.fn.disabled = true;
+  }
 }
 
 function setLoadPending() {
-  id('load').classList.add('pending');
+  els.load.classList.add('pending');
+  els.load.disabled = false;
 }
 
-async function load() {
+function loadFromFN() {
+  els.load.disabled = true;
+  load(els.fn.value);
+}
+
+function loadFromFNW() {
+  els.load.classList.remove('pending');
+  load(els.fnw.value);
+}
+
+async function load(name) {
   try {
-    const name = id('filenamewritein').value;
-    id('load').classList.remove('pending');
-    id('load').disabled = true;
-    id('currfilename').textContent = name;
-    id('filecontent').value = '';
-    id('filecontent').disabled = true;
-    id('filecontent').placeholder = 'loading...';
+    els.ssec.classList.add('off');
+    els.cfn.textContent = name;
+    els.con.value = '';
+    els.con.disabled = true;
+    els.con.placeholder = 'loading...';
 
     const response = await fetch(`/api/${name}`);
     if (!response.ok) throw new Error(`loading returned ${response.status}`);
 
     const text = await response.text();
 
-    id('load').disabled = false;
-    id('filecontent').value = text;
-    id('filecontent').disabled = false;
-    id('filecontent').placeholder = '';
-    id('valuesection').classList.remove('notloaded');
+    els.con.value = text;
+    els.con.disabled = false;
+    els.con.placeholder = '';
+    els.vsec.classList.remove('notloaded');
   } catch (e) {
-    id('load').disabled = false;
-    id('filecontent').value = e.toString();
-    id('filecontent').disabled = true;
-    id('filecontent').placeholder = '';
+    els.load.disabled = false;
+    els.con.value = e.toString();
+    els.con.disabled = true;
+    els.con.placeholder = '';
   }
 }
 
 async function save() {
   try {
-    const name = id('currfilename').textContent;
-    id('save').classList.remove('pending');
-    id('save').disabled = true;
-    id('save').title = undefined;
-    id('save').textContent = 'saving';
+    const name = els.cfn.textContent;
+    els.save.classList.remove('pending');
+    els.save.disabled = true;
+    els.save.title = undefined;
+    els.save.textContent = 'saving';
 
     const response = await fetch(`/api/${name}`, {
       method: 'PUT',
-      body: id('filecontent').value,
+      body: els.con.value,
     });
 
     if (!response.ok) throw new Error(`saving returned ${response.status}`);
 
-    id('save').disabled = false;
-    id('save').textContent = 'save';
+    els.save.disabled = false;
+    els.save.textContent = 'save';
   } catch (e) {
-    id('save').disabled = false;
-    id('save').textContent = 'error, try again?';
-    id('save').title = e.toString();
+    els.save.disabled = false;
+    els.save.textContent = 'error, try again?';
+    els.save.title = e.toString();
   }
 
   loadFilenames();
 }
-
-
-function id(i) { return document.getElementById(i); }
