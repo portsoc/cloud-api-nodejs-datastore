@@ -20,12 +20,14 @@ input:invalid {
   color: #800;
   background-color: #ddd;
   line-height: 1rem;
-  position: absolute;
   margin-left: 1em;
+  position: absolute;
+  right: 0;
+  margin-top: .5em;
 }
 
 input:invalid + .errormessage {
-  display: inline-block;
+  display: block;
 }
 
 #filecontent {
