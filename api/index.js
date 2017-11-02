@@ -1,6 +1,7 @@
 'use strict';
 
 const express = require('express');
+const bodyParser = require('body-parser');
 const db = require('./db');
 
 const api = express.Router();
@@ -16,16 +17,17 @@ api.get('/', async (req, res) => {
 
 api.get('/:id(\\w+)', async (req, res) => {
   try {
-    res.json(await db.get(req.params.id));
+    res.send(await db.get(req.params.id));
   } catch (e) {
     console.error(e);
     res.sendStatus(500);
   }
 });
 
-api.put('/:id(\\w+)', async (req, res) => {
+api.put('/:id(\\w+)', bodyParser.text(), async (req, res) => {
   try {
-    res.json(await db.put(req.params.id, req.body));
+    await db.put(req.params.id, req.body);
+    res.sendStatus(204);
   } catch (e) {
     console.error(e);
     res.sendStatus(500);

@@ -1,9 +1,23 @@
 'use strict';
 
-const data = {};
+const datastore = require('@google-cloud/datastore')({ namespace: 'jacek' });
 
-module.exports.list = () => Object.keys(data);
+function key(id) {
+  return datastore.key(['strings', id]);
+}
 
-module.exports.get = (id) => data[id];
+module.exports.list = async () => {
+  let [data] = await datastore.createQuery('strings').select('name').order('name').run();
+  data = data.map((val) => val.name);
+  return data;
+};
 
-module.exports.put = (id, val) => { data[id] = val; };
+module.exports.get = async (id) => {
+  const [data] = await datastore.get(key(id));
+  if (data && data.val) return data.val;
+  return '';
+};
+
+module.exports.put = (id, val) => {
+  return datastore.save({ key: key(id), data: { name: id, val } });
+};
