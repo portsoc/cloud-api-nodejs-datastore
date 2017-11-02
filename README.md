@@ -30,3 +30,77 @@ The code consists of the following components:
   1. `api/db-inmemory.js` – a simple in-memory list of files; with a configurable delay to simulate slow network
   2. `api/db-datastore.js` – the default database that uses Google Datastore
 5. `app.yaml` – the application descriptor for Google App Engine
+
+## Tutorial
+
+This tutorial goes through the steps of creating the API and connecting it to a database.
+
+#### Prerequisites
+
+You will need Node.js version 8 or later, `git`, and the `gcloud` tools.
+
+It may be easiest to follow this tutorial on a Compute Engine VM with HTTP networking and with full access to the cloud APIs (these are parameters you can set when creating the VM).
+
+### 1. start in a fresh directory
+
+The tutorial assumes that you are starting in an empty directory but have a copy of this repository at hand.
+
+Because this tutorial doesn't look at how the client web page is done, please just copy the directory `static/` and its contents from this repository.
+
+You should now have a directory with `static/` inside it.
+
+### 2. create `package.json`
+
+Run `npm init`, answer the prompts, the defaults are generally OK because we won't be publishing this package.
+
+
+### 3. create a basic Express.js app
+
+For that, we will need the `express` package, so run `npm install --save express`.
+
+Now create the main file for your app, which we can name `app.js`. The following is its basic content:
+
+```javascript
+const express = require('express');
+
+const app = express();
+
+app.use(express.static('static', { extensions: ['html'] }));
+
+const port = process.env.PORT || 8080;
+
+app.listen(port, (err) => {
+  if (err) console.log('error', err);
+  else console.log(`app listening on port ${port}`);
+});
+```
+
+You can test this app by running `node app` and connecting to your machine on port 8080. It will serve the static pages only, so you can see that the app can retrieve `/style.css` and `/script.js`.
+
+For example, if your VM has the IP address 10.11.12.13, then you should reach `style.css` at `http://10.11.12.13:8080/style.css`
+
+### 4. the first API route: listing available files
+
+todo api/index.js and api/db-inmemory.js, but only `GET /api/`
+
+test that the app now loads correctly
+
+### 5. routes for loading and saving file content
+
+todo api/index.js and api/db-inmemory.js for `GET /api/:id` and `PUT /api/:id`
+
+test that the app now works correctly
+
+show that the data doesn't persist
+
+### 6. use Datastore for the database
+
+todo api/db-datastore.js
+
+test that the data now persists
+
+### 7. deploy into App Engine
+
+prepare app.yaml
+
+`gcloud app deploy`
