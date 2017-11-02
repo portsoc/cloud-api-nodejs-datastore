@@ -1,6 +1,9 @@
 'use strict';
 
-const data = {};
+const data = {
+  first: 'test',
+  second: 'not here',
+};
 
 module.exports.list = () => Object.keys(data);
 

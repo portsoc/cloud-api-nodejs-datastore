@@ -2,7 +2,10 @@
 
 const express = require('express');
 const bodyParser = require('body-parser');
-const db = require('./db');
+
+// get the database model, use `export DBTYPE=inmemory` to use the in-memory model
+const modelType = process.env.DBTYPE || 'datastore';
+const db = require(`./db-${modelType}`);
 
 const api = express.Router();
 

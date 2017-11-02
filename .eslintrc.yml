@@ -27,3 +27,4 @@ rules:
   no-restricted-syntax: off
   prefer-destructuring: off
   arrow-parens: off
+  import/no-dynamic-require: off
