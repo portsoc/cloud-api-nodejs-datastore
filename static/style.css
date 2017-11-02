@@ -67,7 +67,7 @@ input:invalid + .errormessage {
 }
 
 #selectsection:not(.off) + #valuesection {
-  opacity: .3;
+  opacity: 0;
 }
 
 #selectsection > .opener:before {
@@ -85,6 +85,7 @@ input:invalid + .errormessage {
   position: absolute;
   left: 4em;
   padding: 0 0 1.5em;
+  transition: opacity .5s;
 }
 
 #valuesection.notloaded h1.loaded,

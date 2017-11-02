@@ -29,12 +29,12 @@ The code consists of the following components:
 1. `static/*` – the client-side web page that uses the API
 2. `app.js` – the main server file; it serves the static files, and imports the API from the next point
 3. `api/index.js` – the specification of the _routes_
-  1. `GET /api/` – lists the available file names
-  2. `GET /api/name` – returns the content of the file with name `name`
-  3. `PUT /api/name` – replaces the content of the file named `name`
+   1. `GET /api/` – lists the available file names
+   2. `GET /api/name` – returns the content of the file with name `name`
+   3. `PUT /api/name` – replaces the content of the file named `name`
 4. `api/db*` – database implementations that support the API:
-  1. `api/db-inmemory.js` – a simple in-memory list of files; with a configurable delay to simulate slow network
-  2. `api/db-datastore.js` – the default database that uses Google Datastore
+   1. `api/db-inmemory.js` – a simple in-memory list of files; with a configurable delay to simulate slow network
+   2. `api/db-datastore.js` – the default database that uses Google Datastore
 5. `app.yaml` – the application descriptor for Google App Engine
 
 ## Tutorial
