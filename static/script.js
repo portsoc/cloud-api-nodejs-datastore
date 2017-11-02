@@ -5,7 +5,7 @@ window.addEventListener('load', init);
 function init() {
   loadFilenames();
   id('filename').addEventListener('change', setWritein);
-  id('filename').addEventListener('change', setLoadPending);
+  id('filename').addEventListener('change', load);
   id('filenamewritein').addEventListener('input', setLoadPending);
   id('load').addEventListener('click', load);
   id('save').addEventListener('click', save);
@@ -28,13 +28,16 @@ async function loadFilenames() {
   }
 
   id('filename').innerHTML = '';
+  id('filenamewritein').value = data[0];
   for (const item of data) {
     const opt = document.createElement('option');
     opt.textContent = item;
+    if (item === id('currfilename').textContent) {
+      opt.selected = true;
+      id('filenamewritein').value = item;
+    }
     id('filename').appendChild(opt);
   }
-
-  id('filenamewritein').value = data[0];
 }
 
 function setWritein(e) {
