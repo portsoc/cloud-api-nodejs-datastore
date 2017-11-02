@@ -112,13 +112,39 @@ Now add the following line into `app.js` before the line that mentions `static`:
 app.use('/api', require('./api'));
 ```
 
-It needs to go before the line that mentions `static` to give preference to the API: if the `static/` directory contains (probably by mistake) a directory called `api` with some files in it, these would not override our API.
+(It needs to go before the line that mentions `static` to give preference to the API: if the `static/` directory contains (probably by mistake) a directory called `api` with some files in it, these would not override our API.)
 
-test that the app now loads correctly
+Now the server is ready to return a list of files. Run the app like above with `node app` and check that the drop-down box of file names gets loaded correctly.
 
-todo api/db-inmemory.js
+A hard-coded list of files would not be useful. We will start with an in-memory data store for our files. Put the following in the file `api/db-inmemory.js`:
 
-test that the app now loads correctly
+```javascript
+const data = {
+  pets: 'kitten, doggie, tortoise',
+  message: 'Hello World!',
+  shoppinglist: '1. milk\n2. cookies',
+};
+
+module.exports.list = () => {
+  return Object.keys(data);
+};
+```
+
+This keeps the files in an object, keyed by the file name. `Object.keys(data)` returns an array of the keys, exactly what we need to return to the client.
+
+We have put the datastore in a new file (`api/db-inmemory.js`) to separate the implementation of the API from the implementation of the data model.
+
+Now we can use this file in `api/index.js` by replacing the route handler with:
+
+```javascript
+const db = require('./db-inmemory');
+
+api.get('/', (req, res) => {
+  res.json(db.list());
+});
+```
+
+Restart the app and reload the page and the list of files should now contain "shoppinglist" as well as the other files we had in the hard-coded list before.
 
 ### 5. routes for loading and saving file content
 
