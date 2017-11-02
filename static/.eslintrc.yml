@@ -26,3 +26,4 @@ rules:
   space-infix-ops: off
   no-restricted-syntax: off
   prefer-destructuring: off
+  arrow-parens: off

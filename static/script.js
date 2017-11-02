@@ -14,7 +14,7 @@ function init() {
 async function loadFilenames() {
   const response = await fetch('/api/');
   if (!response.ok) {
-    id('filename').innerHTML = '<option>no files';
+    id('filename').innerHTML = '<option>error';
     id('filename').disabled = true;
     return;
   }
@@ -22,7 +22,7 @@ async function loadFilenames() {
   const data = await response.json();
   id('filename').disabled = false;
   if (!Array.isArray(data) || data.length === 0) {
-    id('filename').innerHTML = '<option>error';
+    id('filename').innerHTML = '<option>no files';
     id('filename').disabled = true;
     return;
   }
@@ -95,6 +95,8 @@ async function save() {
     id('save').textContent = 'error, try again?';
     id('save').title = e.toString();
   }
+
+  loadFilenames();
 }
 
 
