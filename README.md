@@ -96,12 +96,11 @@ It is good practice to split the API routes away from the main server file, ther
 ```javascript
 const express = require('express');
 const api = express.Router();
+module.exports = api;
 
 api.get('/', (req, res) => {
   res.json(["message", "pets"]);
 });
-
-module.exports = api;
 ```
 
 The code above gives us a Javascript module that exports an Express _router_, which is a collection of routes. The only route in there simply returns a hard-coded list of files: "message" and "pets".
@@ -148,11 +147,42 @@ Restart the app and reload the page and the list of files should now contain "sh
 
 ### 5. routes for loading and saving file content
 
-todo api/index.js and api/db-inmemory.js for `GET /api/:id` and `PUT /api/:id`
+Listing the available files above is only the first step. To add manipulation of the content of files, first, we will add the following to `api/db-inmemory.js`:
 
-test that the app now works correctly
+```javascript
+module.exports.get = (id) => {
+  return data[id];
+};
 
-show that the data doesn't persist
+module.exports.put = (id, val) => {
+  data[id] = val;
+};
+```
+
+These two new functions need to be used in the API, so we will add this in `api/index.js`:
+
+```javascript
+api.get('/:id(\\w+)', (req, res) => {
+  let result = db.get(req.params.id);
+  if (result == null) result = '';
+  res.send(result);
+});
+
+api.put('/:id(\\w+)', bodyParser.text(), (req, res) => {
+  db.put(req.params.id, req.body);
+  res.sendStatus(204);
+});
+```
+
+The first route serves `GET` requests – retrieving file contents. If a file isn't in the database, we will return an empty string as if the file was there.
+
+The second route serves `PUT` requests – saving file contents. The route need not return any data, so it returns status 204 (HTTP OK, no content coming back).
+
+In the routes, the path `'/:id(\\w+)'` specifies that the content of the URL becomes a request parameter called `id` (so we can get it as `req.params.id`), and that it must match the regex `\w+` – only alphanumeric characters.
+
+Restarting the app now, we should see that the Web app works: lists all the files, loads their content, allows saving, and also allows us to create new files.
+
+Because we only have an in-memory data store, the app will only remember any saved changes as long as it is not restarted. You can try it by saving a file, restarting the app, and loading the file again – the changes will be lost.
 
 ### 6. use Datastore for the database
 
