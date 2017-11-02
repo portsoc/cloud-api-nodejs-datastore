@@ -18,6 +18,12 @@ The API is implemented in Node.js and Express, the database is either in-memory 
 
 The application is a simple store of textual data. It has a list of named _files_ whose content can be loaded, edited, and saved.
 
+For example, we might have two files:
+ * `pets` contains `kitten, doggie, tortoise`
+ * `message` contains `Hello World!`
+
+In the app, we can load either file and edit it, or we can create a new file.
+
 The code consists of the following components:
 
 1. `static/*` – the client-side web page that uses the API
@@ -81,7 +87,36 @@ For example, if your VM has the IP address 10.11.12.13, then you should reach `s
 
 ### 4. the first API route: listing available files
 
-todo api/index.js and api/db-inmemory.js, but only `GET /api/`
+Our app first needs to be able to load the list of available files. In an API that only has a simple list of files, we can return the list of available files at the root of the API:
+
+`GET /api/   ->  returns ["message", "pets"]`
+
+It is good practice to split the API routes away from the main server file, therefore we will put the route in a file called `api/index.js`. Copy the following code into this file:
+
+```javascript
+const express = require('express');
+const api = express.Router();
+
+api.get('/', (req, res) => {
+  res.json(["message", "pets"]);
+});
+
+module.exports = api;
+```
+
+The code above gives us a Javascript module that exports an Express _router_, which is a collection of routes. The only route in there simply returns a hard-coded list of files: "message" and "pets".
+
+Now add the following line into `app.js` before the line that mentions `static`:
+
+```javascript
+app.use('/api', require('./api'));
+```
+
+It needs to go before the line that mentions `static` to give preference to the API: if the `static/` directory contains (probably by mistake) a directory called `api` with some files in it, these would not override our API.
+
+test that the app now loads correctly
+
+todo api/db-inmemory.js
 
 test that the app now loads correctly
 
