@@ -1,0 +1,62 @@
+body {
+  color: black;
+  background-color: white;
+}
+
+select {
+  display: block;
+  margin: 1em 0;
+}
+
+input:invalid {
+  box-shadow: 0 0 4px 1px red;
+}
+
+.errormessage {
+  display: none;
+  padding: .2em .7em;
+  border-radius: .3em;
+  font-size: 75%;
+  color: #800;
+  background-color: #ddd;
+  line-height: 1rem;
+  position: absolute;
+  margin-left: 1em;
+}
+
+input:invalid + .errormessage {
+  display: inline-block;
+}
+
+#filecontent {
+  width: 40em;
+  height: 10em;
+}
+
+#valuesection {
+  display: inline-block;
+  position: relative;
+  padding-bottom: 1.5em;
+}
+
+#save {
+  display: block;
+  position: absolute;
+  right: 0;
+  bottom: 0;
+}
+
+#load {
+  display: block;
+  margin: 1em 0;
+}
+
+button.pending {
+  box-shadow: 0 0 .7em .2em yellow;
+  font-weight: bold;
+}
+
+#valuesection.notloaded h1.loaded,
+#valuesection:not(.notloaded) h1.notloaded {
+  display: none;
+}

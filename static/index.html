@@ -1,4 +1,30 @@
 <!doctype html>
 <title>CLOCOSS string store</title>
+<link rel="stylesheet" href="style.css">
 
 <h1>CLOCOSS string store</h1>
+
+<p>This app stores textual values in files with short, alphanumeric names.
+
+<section>
+  <h1>Select a file:</h1>
+  <select id="filename" disabled>
+    <option>loading
+  </select>
+  or write a file name here:
+  <input autofocus id="filenamewritein" title="only accepts digits and letters a-z" pattern="[a-zA-Z0-9_]+">
+  <span class="errormessage">only use digits and letters please</span>
+  <button id="load" class="pending">Load</button>
+</section>
+
+<section id="valuesection" class="notloaded">
+  <h1 class="notloaded">File content will appear here:</h1>
+  <h1 class="loaded">Content of "<span id="currfilename"></span>":</h1>
+  <textarea id="filecontent" disabled>
+    select and load a file
+  </textarea>
+
+  <button id="save">Save</button>
+</section>
+
+<script src="script.js"></script>

@@ -1,8 +1,8 @@
 extends: airbnb
 
 env:
-  node: true
-  browser: false
+  browser: true
+  node: false
 
 parserOptions:
   ecmaVersion: 8
