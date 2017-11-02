@@ -83,7 +83,7 @@ async function load(name) {
     els.con.disabled = true;
     els.con.placeholder = 'loading...';
 
-    const response = await fetch(`/api/${name}`);
+    const response = await fetch(`/api/${encodeURIComponent(name)}`);
     if (!response.ok) throw new Error(`loading returned ${response.status}`);
 
     const text = await response.text();
