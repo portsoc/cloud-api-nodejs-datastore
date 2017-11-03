@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="en">
+<title>CLOCOSS Tutorial: API with Node.js and Datastore</title>
+<meta charset="utf-8">
+<style>
+html {
+  background-color: white;
+  color: black;
+  margin: 0;
+  padding: 0 1em 0 3em;
+}
+body {
+  max-width: 40em;
+  margin: 0 auto;
+}
+pre {
+  background: #fff7e5;
+  padding: 1em;
+  border-radius: .4em;
+  overflow: auto;
+  line-height: 1.4em;
+}
+code {
+  background: #fff7e5;
+  padding: .2em .5em;
+  border-radius: .2em;
+}
+h1,h2,h3,h4,h5,h6 {
+  font-family: sans-serif;
+}
+footer {
+  margin: 2em 0;
+  text-align: right;
+}
+</style>
+
+<h1>CLOCOSS Tutorial: API with Node.js and Datastore</h1>
+
+
+<p>This tutorial goes through the steps of creating the API and connecting it to a database. See the <a href="https://github.com/portsoc/clocoss-api-nodejs-datastore">source files on GitHub.</a>
+
+<section>
+  <h3>Prerequisites</h3>
+
+<div class="tick"></div>
+
+<p>You will need Node.js version 8 or later, <code>git</code>, and the <code>gcloud</code> tools.
+
+<p>It may be easiest to follow this tutorial on a Compute Engine VM with HTTP networking and with full access to the cloud APIs (these are parameters you can set when creating the VM).
+
+</section>
+<section>
+  <h2> 1. start in a fresh directory</h2>
+
+<p>The tutorial assumes that you are starting in an empty directory but have a copy of this repository at hand.
+
+<p>Because this tutorial doesn't look at how the client web page is done, please just copy the directory <code>static/</code> and its contents from this repository.
+
+<div class="tick"></div>
+
+<p>You should now have a directory with <code>static/</code> inside it.
+
+</section>
+<section>
+  <h2> 2. create <code>package.json</code></h2>
+
+<div class="tick"></div>
+
+<p>Run <code>npm init</code>, answer the prompts, the defaults are generally OK because we won't be publishing this package.
+
+
+</section>
+<section>
+  <h2> 3. create a basic Express.js app</h2>
+
+<div class="tick"></div>
+
+<p>For that, we will need the <code>express</code> package, so run <code>npm install --save express</code>.
+
+<div class="tick"></div>
+
+<p>Now create the main file for your app, which we can name <code>app.js</code>. The following is its basic content:
+
+<pre>
+const express = require('express');
+
+const app = express();
+
+app.use(express.static('static', { extensions: ['html'] }));
+
+const port = process.env.PORT || 8080;
+
+app.listen(port, (err) => {
+  if (err) console.log('error', err);
+  else console.log(`app listening on port ${port}`);
+});
+</pre>
+
+<div class="tick"></div>
+
+<p>You can test this app by running <code>node app</code> and connecting to your machine on port 8080. It will serve the static pages only, so you can see that the app can retrieve <code>/style.css</code> and <code>/script.js</code>. The file drop-down box will say "error" because we don't have an API yet.
+
+<p>For example, if your VM has the IP address 10.11.12.13, then you should reach <code>style.css</code> at <code>http://10.11.12.13:8080/style.css</code>
+
+</section>
+<section>
+  <h2> 4. the first API route: listing available files</h2>
+
+<p>Our app first needs to be able to load the list of available files. In an API that only has a simple list of files, we can return the list of available files at the root of the API:
+
+<p><code>GET /api/   ->  returns ["message", "pets"]</code>
+
+<div class="tick"></div>
+
+<p>It is good practice to split the API routes away from the main server file, therefore we will put the route in a separate module. Create a folder called <code>api</code> and copy the following code into <code>api/index.js</code>:
+
+<pre>
+const express = require('express');
+const api = express.Router();
+module.exports = api;
+
+api.get('/', (req, res) => {
+  res.json(["message", "pets"]);
+});
+</pre>
+
+<p>The code above gives us a Javascript module that exports an Express <em>router</em>, which is a collection of routes. The only route in there simply returns a hard-coded list of files: "message" and "pets".
+
+<div class="tick"></div>
+
+<p>Now add the following line into <code>app.js</code> before the line that mentions <code>static</code>:
+
+<pre>
+app.use('/api', require('./api'));
+</pre>
+
+<p>(It needs to go before the line that mentions <code>static</code> to give preference to the API: if the <code>static/</code> directory contains – probably by mistake – a directory called <code>api</code> with some files in it, these would not override our API.)
+
+<div class="tick"></div>
+
+<p>Now the server is ready to return a list of files. Run the app like above with <code>node app</code> (or restart the app if it was still running) and check that the drop-down box of file names gets loaded correctly. It should contain "message" and "pets", the hard-coded list we have in the code.
+
+<div class="tick"></div>
+
+<p>A hard-coded list of files would not be useful. For now, we will use an in-memory database for our files. Put the following in the file <code>api/db-inmemory.js</code>:
+
+<pre>
+const data = {
+  pets: 'kitten, doggie, tortoise',
+  message: 'Hello World!',
+  shoppinglist: '1. milk\n2. cookies',
+};
+
+module.exports.list = () => {
+  return Object.keys(data);
+};
+</pre>
+
+<p>This keeps the files in an object, keyed by the file name. <code>Object.keys(data)</code> returns an array of the keys, exactly what we need to return to the client.
+
+<p>We have put the database in a new file (<code>api/db-inmemory.js</code>) to separate the implementation of the API from the implementation of the data model.
+
+<div class="tick"></div>
+
+<p>Now we can use this file in <code>api/index.js</code> by replacing it with:
+
+<pre>
+const express = require('express');
+const api = express.Router();
+module.exports = api;
+
+const db = require('./db-inmemory');
+
+api.get('/', (req, res) => {
+  res.json(db.list());
+});
+</pre>
+
+<div class="tick"></div>
+
+<p>Restart the app and reload the page and the list of files should now contain "shoppinglist" as well as the other files we had in the hard-coded list before.
+
+</section>
+<section>
+  <h2> 5. routes for loading and saving file content</h2>
+
+<p>Listing the available files above is only the first step. To add manipulation of the content of files, first, we will add the following to <code>api/db-inmemory.js</code>:
+
+<pre>
+module.exports.get = (id) => {
+  if (data[id] == null) return '';
+  return data[id];
+};
+
+module.exports.put = (id, val) => {
+  data[id] = val;
+};
+</pre>
+
+<p>These two new functions need to be used in the API, so we will add this in <code>api/index.js</code>:
+
+<pre>
+api.get('/:id(\\w+)', (req, res) => {
+  res.send(db.get(req.params.id));
+});
+
+const bodyParser = require('body-parser');
+api.put('/:id(\\w+)', bodyParser.text(), (req, res) => {
+  db.put(req.params.id, req.body);
+  res.sendStatus(204);
+});
+</pre>
+
+<p>The first route serves <code>GET</code> requests – retrieving file contents. If a file isn't in the database, we will return an empty string as if the file was there.
+
+<p>The second route serves <code>PUT</code> requests – saving file contents. The route need not return any data, so it returns status 204 (HTTP OK, no content coming back).
+
+<p>The second route uses the <code>body-parser</code> package to get the body of the request. To install it, run <code>npm install --save body-parser</code>
+
+<p>In the routes, the path <code>'/:id(\\w+)'</code> specifies that the content of the URL becomes a request parameter called <code>id</code> (so we can get it as <code>req.params.id</code>), and that it must match the regex <code>\w+</code> – only alphanumeric characters.
+
+<p>Restarting the app now, we should see that the Web app works: lists all the files, loads their content, allows saving, and also allows us to create new files.
+
+<p>Because we only have an in-memory database, the app will only remember any saved changes as long as it is not restarted. You can try it by saving a file, restarting the app, and loading the file again – the changes will be lost. The next step addresses this.
+
+</section>
+<section>
+  <h2> 6. use Datastore for the database</h2>
+
+<p>Now we can use a persistent database for our files. We will use Google Datastore; to install the Node.js package, run <code>npm install --save @google-cloud/datastore</code>
+
+<p>We can put the database code in a new file, <code>api/db-datastore.js</code>, like this:
+
+<pre>
+// change the namespace to something else than 'tutorial'
+const ds = require('@google-cloud/datastore')({ namespace: 'tutorial' });
+
+const kind = 'files';
+
+function key(id) {
+  return ds.key([kind, id]);
+}
+
+module.exports.list = async () => {
+  // asynchronously get a list of entities with names
+  let [data] = await ds.createQuery(kind).select('name').order('name').run();
+  // extract only the names
+  data = data.map((val) => val.name);
+  return data;
+};
+
+module.exports.get = async (id) => {
+  // asynchronously get the entity
+  const [data] = await ds.get(key(id));
+  if (data && data.val) return data.val;
+  return '';
+};
+
+module.exports.put = (id, val) => {
+  const entity = {
+    key: key(id),
+    data: { name: id, val },
+  }
+  await ds.save(entity);
+};
+</pre>
+
+<p>Data stored in Datastore is seen as <em>entities</em>. We use one entity per file; each entity has two properties: <code>name</code> and <code>val</code>. Every entity is identified by a <em>key</em> which has a <em>kind</em> and an ID; we named the kind "files" and we use the file name as its ID.
+
+<p>The file uses a <em>namespace</em> (by default "tutorial") that you should rename such that the entities do not collide with any other datastore entities used in your project.
+
+<p>Because the Datastore is remote, all the invocations are asynchronous. We use <em>async/await</em> syntax that is only available from Node.js version 8.
+
+<p>The <code>list()</code> function uses a query to retrieve only the names of all the stored files; and sorts them alphabetically.
+
+<p>The <code>get()</code> function is a straightforward use of the <code>datastore.get()</code> function; similarly, the <code>put()</code> function is a simple use of <code>datastore.save()</code>.
+
+<p>When this app runs on a Compute Engine VM, or in App Engine, it automatically connects to the Datastore of the same cloud project, otherwise the first line of the code above would need to specify more about the datastore it uses.
+
+<p>In order to use this Datastore-backed database, we need to change <code>api/index.js</code> in two ways: first, we need to <code>require</code> the right module, and then we need to deal with the asynchronous nature of the datastore (together with any possible errors). Therefore, replace <code>api/index.js</code> with the following:
+
+<pre>
+const express = require('express');
+const bodyParser = require('body-parser');
+const api = express.Router();
+module.exports = api;
+
+const db = require(`./db-datastore`);
+
+api.get('/', async (req, res) => {
+  try {
+    res.json(await db.list());
+  } catch (e) {
+    console.error(e);
+    res.sendStatus(500);
+  }
+});
+
+api.get('/:id(\\w+)', async (req, res) => {
+  try {
+    res.send(await db.get(req.params.id));
+  } catch (e) {
+    console.error(e);
+    res.sendStatus(500);
+  }
+});
+
+api.put('/:id(\\w+)', bodyParser.text(), async (req, res) => {
+  try {
+    await db.put(req.params.id, req.body);
+    res.sendStatus(204);
+  } catch (e) {
+    console.error(e);
+    res.sendStatus(500);
+  }
+});
+</pre>
+
+<p>Beside the <code>require</code> statement, the asynchrony, and error handling, not much has changed in that file.
+
+<p>If we now restart the app, we may see that there are no files available yet; when we create and save a file, we can test by restarting the app that the data persists.
+
+<p>The data is also available in the Google cloud console under Datastore -> Entities.
+
+</section>
+<section>
+  <h2> 7. deploy into App Engine</h2>
+
+<p>We have been testing the app by running it locally on a Compute Engine VM. Now we can deploy it in App Engine so that Google manages the runtime environment, scaling, HTTPS, and so on, for us.
+
+<p>First, we need to prepare an application descriptor file <code>app.yaml</code>:
+
+<pre>
+runtime: nodejs
+env: flex
+service: tutorial
+automatic_scaling:
+  min_num_instances: 1
+  max_num_instances: 3
+</pre>
+
+<p>In the file, change the service name from "tutorial" to avoid any service name conflicts.
+
+<p>Finally, run <code>gcloud app deploy</code> and after some waiting, your app will be ready and running. You can find out the URL for your app with <code>gcloud app browse</code> or in the cloud console.
+</section>
+
+<p>That's it. In this tutorial, you looked at implementing an API with Node.js and Express, storing its data in Datastore, and hosting it on App Engine. Hope you liked it.
+
+<footer>
+  <p>Please send comments to <a href="mailto:jacek.kopecky@port.ac.uk">Jack Kopecky</a> or submit issues <a href="https://github.com/portsoc/clocoss-api-nodejs-datastore">on GitHub</a>.
+</footer>
+
+
+
+
+<script>
+// checkbox ticks that remember their state
+// to add a checkbox tick, add <div class="tick"></div> somewhere
+(() => {
+  'use strict';
+  window.addEventListener('load', tickSetup);
+
+  let helpMessage;
+
+  function tickSetup() {
+    const tickStyle = document.createElement('style');
+    tickStyle.textContent = `
+      .tick {
+        position: absolute;
+        display: inline-block;
+        font-size: 1rem;
+        margin-left: -2.5em;
+      }
+      .tick input {
+        display: none;
+      }
+      .tick input + .box:before {
+        content: ' ';
+        position: relative;
+        font-size: 1rem;
+        display: block;
+        height: 1em;
+        width: 1em;
+        border: 2px solid #bbb;
+        border-radius: .2em;
+      }
+      .tick input:checked + .box:before {
+        background-color: #00bb00;
+        content: '✓';
+        text-align: center;
+        line-height: 1rem;
+        font-family: sans-serif;
+        color: white;
+      }
+      .tick .help {
+        display: block;
+        width: 12em;
+        font-family: sans-serif;
+        font-size: 80%;
+        position: absolute;
+        bottom: 0;
+        right: 2em;
+        text-align: center;
+        transform: translate(0,50%) translate(0,-0.625em) translate(0,-4px);
+        border: 1px solid black;
+        border-radius: .4em;
+        padding: .2em;
+        background: #ffc;
+      }
+      `;
+    document.head.appendChild(tickStyle);
+    const ticks = document.querySelectorAll('.tick');
+    let cnt = 0;
+    let allUnchecked = true;
+    for (let tick of ticks) {
+      if (tick.nodeName !== 'LABEL') {
+        tick = tick.appendChild(document.createElement('label'));
+      }
+      tick.appendChild(document.createElement('input'));
+      tick.appendChild(document.createElement('div')).className='box';
+      const tickbox = tick.children[0];
+      tickbox.type = 'checkbox';
+      tickbox.id = 'tick' + cnt;
+      cnt += 1;
+      try {
+        if (localStorage[window.location.pathname + ': ' + tickbox.id]) {
+          tickbox.checked = true;
+          allUnchecked = false;
+        }
+        tickbox.addEventListener('change', tickOnChange);
+      } catch (e) {
+        // the access to localStorage can cause security errors which we'll ignore
+      }
+    }
+
+    if (ticks.length && allUnchecked) {
+      helpMessage = ticks[0].appendChild(document.createElement('div'));
+      helpMessage.className = 'help';
+      helpMessage.textContent = "With these tick boxes you can track your progress; the page will remember what was checked.";
+    }
+  }
+
+  function tickOnChange(e) {
+    if (helpMessage) {
+      helpMessage.remove();
+      helpMessage = null;
+    }
+    if (e.target.checked) {
+      localStorage[window.location.pathname + ': ' + e.target.id] = "true";
+    } else {
+      delete localStorage[window.location.pathname + ': ' + e.target.id];
+    }
+  }
+})();
+</script>
