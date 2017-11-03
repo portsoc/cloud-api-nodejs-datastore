@@ -290,6 +290,19 @@ The data is also available in the Google cloud console under Datastore -> Entiti
 
 ### 7. deploy into App Engine
 
-prepare app.yaml
+We have been testing the app by running it locally on a Compute Engine VM. Now we can deploy it in App Engine so that Google manages the runtime environment, scaling, HTTPS, and so on, for us.
 
-`gcloud app deploy`
+First, we need to prepare an application descriptor file `app.yaml`:
+
+```yaml
+runtime: nodejs
+env: flex
+service: tutorial
+automatic_scaling:
+  min_num_instances: 1
+  max_num_instances: 3
+```
+
+In the file, change the service name from "tutorial" to avoid any service name conflicts.
+
+Finally, run `gcloud app deploy` and after some waiting, your app will be ready and running. You can find out the URL for your app with `gcloud app browse` or in the cloud console.
