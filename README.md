@@ -60,7 +60,6 @@ You should now have a directory with `static/` inside it.
 
 Run `npm init`, answer the prompts, the defaults are generally OK because we won't be publishing this package.
 
-
 ### 3. create a basic Express.js app
 
 For that, we will need the `express` package, so run `npm install --save express`.
@@ -222,10 +221,10 @@ module.exports.get = async (id) => {
   return '';
 };
 
-module.exports.put = (id, val) => {
+module.exports.put = async (id, val) => {
   const entity = {
     key: key(id),
-    data: { name: id, val },
+    data: { name: id, val }
   }
   await ds.save(entity);
 };
@@ -306,3 +305,13 @@ automatic_scaling:
 In the file, change the service name from "tutorial" to avoid any service name conflicts.
 
 Finally, run `gcloud app deploy` and after some waiting, your app will be ready and running. You can find out the URL for your app with `gcloud app browse` or in the cloud console.
+
+NOTE: Before running `gcloud app deploy`, ensure that your `package.json` includes:
+```javascript
+"scripts": {
+  "start": "node app.js",
+}
+  ```
+If you haven't done this, you will receive this error:
+`Application detection failed: Error: node.js checker: Neither "start" in the "scripts"
+section of "package.json" nor the "server.js" file were found.`

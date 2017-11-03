@@ -124,4 +124,5 @@ async function save() {
   }
 
   loadFilenames();
+  els.ssec.classList.toggle('off');
 }
