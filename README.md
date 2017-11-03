@@ -116,7 +116,7 @@ app.use('/api', require('./api'));
 
 Now the server is ready to return a list of files. Run the app like above with `node app` and check that the drop-down box of file names gets loaded correctly.
 
-A hard-coded list of files would not be useful. We will start with an in-memory data store for our files. Put the following in the file `api/db-inmemory.js`:
+A hard-coded list of files would not be useful. We will start with an in-memory database for our files. Put the following in the file `api/db-inmemory.js`:
 
 ```javascript
 const data = {
@@ -132,11 +132,15 @@ module.exports.list = () => {
 
 This keeps the files in an object, keyed by the file name. `Object.keys(data)` returns an array of the keys, exactly what we need to return to the client.
 
-We have put the datastore in a new file (`api/db-inmemory.js`) to separate the implementation of the API from the implementation of the data model.
+We have put the database in a new file (`api/db-inmemory.js`) to separate the implementation of the API from the implementation of the data model.
 
-Now we can use this file in `api/index.js` by replacing the route handler with:
+Now we can use this file in `api/index.js` by replacing it with:
 
 ```javascript
+const express = require('express');
+const api = express.Router();
+module.exports = api;
+
 const db = require('./db-inmemory');
 
 api.get('/', (req, res) => {
@@ -152,6 +156,7 @@ Listing the available files above is only the first step. To add manipulation of
 
 ```javascript
 module.exports.get = (id) => {
+  if (data[id] == null) return '';
   return data[id];
 };
 
@@ -164,11 +169,10 @@ These two new functions need to be used in the API, so we will add this in `api/
 
 ```javascript
 api.get('/:id(\\w+)', (req, res) => {
-  let result = db.get(req.params.id);
-  if (result == null) result = '';
-  res.send(result);
+  res.send(db.get(req.params.id));
 });
 
+const bodyParser = require('body-parser');
 api.put('/:id(\\w+)', bodyParser.text(), (req, res) => {
   db.put(req.params.id, req.body);
   res.sendStatus(204);
@@ -179,17 +183,110 @@ The first route serves `GET` requests – retrieving file contents. If a file is
 
 The second route serves `PUT` requests – saving file contents. The route need not return any data, so it returns status 204 (HTTP OK, no content coming back).
 
+The second route uses the `body-parser` package to get the body of the request. To install it, run `npm install --save body-parser`
+
 In the routes, the path `'/:id(\\w+)'` specifies that the content of the URL becomes a request parameter called `id` (so we can get it as `req.params.id`), and that it must match the regex `\w+` – only alphanumeric characters.
 
 Restarting the app now, we should see that the Web app works: lists all the files, loads their content, allows saving, and also allows us to create new files.
 
-Because we only have an in-memory data store, the app will only remember any saved changes as long as it is not restarted. You can try it by saving a file, restarting the app, and loading the file again – the changes will be lost.
+Because we only have an in-memory database, the app will only remember any saved changes as long as it is not restarted. You can try it by saving a file, restarting the app, and loading the file again – the changes will be lost. The next step addresses this.
 
 ### 6. use Datastore for the database
 
-todo api/db-datastore.js
+Now we can use a persistent database for our files. We will use Google Datastore; to install the Node.js package, run `npm install --save @google-cloud/datastore`
 
-test that the data now persists
+We can put the database code in a new file, `api/db-datastore.js`, like this:
+
+```javascript
+// change the namespace to something else than 'tutorial'
+const ds = require('@google-cloud/datastore')({ namespace: 'tutorial' });
+
+const kind = 'files';
+
+function key(id) {
+  return ds.key([kind, id]);
+}
+
+module.exports.list = async () => {
+  // asynchronously get a list of entities with names
+  let [data] = await ds.createQuery(kind).select('name').order('name').run();
+  // extract only the names
+  data = data.map((val) => val.name);
+  return data;
+};
+
+module.exports.get = async (id) => {
+  // asynchronously get the entity
+  const [data] = await ds.get(key(id));
+  if (data && data.val) return data.val;
+  return '';
+};
+
+module.exports.put = (id, val) => {
+  const entity = {
+    key: key(id),
+    data: { name: id, val },
+  }
+  await ds.save(entity);
+};
+```
+
+Data stored in Datastore is seen as _entities_. We use one entity per file; each entity has two properties: `name` and `val`. Every entity is identified by a _key_ which has a _kind_ and an ID; we named the kind "files" and we use the file name as its ID.
+
+The file uses a _namespace_ (by default "tutorial") that you should rename such that the entities do not collide with any other datastore entities used in your project.
+
+Because the Datastore is remote, all the invocations are asynchronous. We use _async/await_ syntax that is only available from Node.js version 8.
+
+The `list()` function uses a query to retrieve only the names of all the stored files; and sorts them alphabetically.
+
+The `get()` function is a straightforward use of the `datastore.get()` function; similarly, the `put()` function is a simple use of `datastore.save()`.
+
+When this app runs on a Compute Engine VM, or in App Engine, it automatically connects to the Datastore of the same cloud project, otherwise the first line of the code above would need to specify more about the datastore it uses.
+
+In order to use this Datastore-backed database, we need to change `api/index.js` in two ways: first, we need to `require` the right module, and then we need to deal with the asynchronous nature of the datastore (together with any possible errors). Therefore, replace `api/index.js` with the following:
+
+```javascript
+const express = require('express');
+const bodyParser = require('body-parser');
+const api = express.Router();
+module.exports = api;
+
+const db = require(`./db-datastore`);
+
+api.get('/', async (req, res) => {
+  try {
+    res.json(await db.list());
+  } catch (e) {
+    console.error(e);
+    res.sendStatus(500);
+  }
+});
+
+api.get('/:id(\\w+)', async (req, res) => {
+  try {
+    res.send(await db.get(req.params.id));
+  } catch (e) {
+    console.error(e);
+    res.sendStatus(500);
+  }
+});
+
+api.put('/:id(\\w+)', bodyParser.text(), async (req, res) => {
+  try {
+    await db.put(req.params.id, req.body);
+    res.sendStatus(204);
+  } catch (e) {
+    console.error(e);
+    res.sendStatus(500);
+  }
+});
+```
+
+Beside the `require` statement, the asynchrony, and error handling, not much has changed in that file.
+
+If we now restart the app, we may see that there are no files available yet; when we create and save a file, we can test by restarting the app that the data persists.
+
+The data is also available in the Google cloud console under Datastore -> Entities.
 
 ### 7. deploy into App Engine
 
