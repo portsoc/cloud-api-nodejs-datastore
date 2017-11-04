@@ -184,6 +184,8 @@ api.get('/', (req, res) => {
 <section>
   <h2> 5. routes for loading and saving file content</h2>
 
+<div class="tick"></div>
+
 <p>Listing the available files above is only the first step. To add manipulation of the content of files, first, we will add the following to <code>api/db-inmemory.js</code>:
 
 <pre>
@@ -196,6 +198,8 @@ module.exports.put = (id, val) => {
   data[id] = val;
 };
 </pre>
+
+<div class="tick"></div>
 
 <p>These two new functions need to be used in the API, so we will add this in <code>api/index.js</code>:
 
@@ -215,9 +219,13 @@ api.put('/:id(\\w+)', bodyParser.text(), (req, res) => {
 
 <p>The second route serves <code>PUT</code> requests – saving file contents. The route need not return any data, so it returns status 204 (HTTP OK, no content coming back).
 
+<div class="tick"></div>
+
 <p>The second route uses the <code>body-parser</code> package to get the body of the request. To install it, run <code>npm install --save body-parser</code>
 
 <p>In the routes, the path <code>'/:id(\\w+)'</code> specifies that the content of the URL becomes a request parameter called <code>id</code> (so we can get it as <code>req.params.id</code>), and that it must match the regex <code>\w+</code> – only alphanumeric characters.
+
+<div class="tick"></div>
 
 <p>Restarting the app now, we should see that the Web app works: lists all the files, loads their content, allows saving, and also allows us to create new files.
 
@@ -227,7 +235,11 @@ api.put('/:id(\\w+)', bodyParser.text(), (req, res) => {
 <section>
   <h2> 6. use Datastore for the database</h2>
 
+<div class="tick"></div>
+
 <p>Now we can use a persistent database for our files. We will use Google Datastore; to install the Node.js package, run <code>npm install --save @google-cloud/datastore</code>
+
+<div class="tick"></div>
 
 <p>We can put the database code in a new file, <code>api/db-datastore.js</code>, like this:
 
@@ -252,7 +264,7 @@ module.exports.list = async () => {
 module.exports.get = async (id) => {
   // asynchronously get the entity
   const [data] = await ds.get(key(id));
-  if (data && data.val) return data.val;
+  if (data &amp;&amp; data.val) return data.val;
   return '';
 };
 
@@ -267,6 +279,8 @@ module.exports.put = (id, val) => {
 
 <p>Data stored in Datastore is seen as <em>entities</em>. We use one entity per file; each entity has two properties: <code>name</code> and <code>val</code>. Every entity is identified by a <em>key</em> which has a <em>kind</em> and an ID; we named the kind "files" and we use the file name as its ID.
 
+<div class="tick"></div>
+
 <p>The file uses a <em>namespace</em> (by default "tutorial") that you should rename such that the entities do not collide with any other datastore entities used in your project.
 
 <p>Because the Datastore is remote, all the invocations are asynchronous. We use <em>async/await</em> syntax that is only available from Node.js version 8.
@@ -276,6 +290,8 @@ module.exports.put = (id, val) => {
 <p>The <code>get()</code> function is a straightforward use of the <code>datastore.get()</code> function; similarly, the <code>put()</code> function is a simple use of <code>datastore.save()</code>.
 
 <p>When this app runs on a Compute Engine VM, or in App Engine, it automatically connects to the Datastore of the same cloud project, otherwise the first line of the code above would need to specify more about the datastore it uses.
+
+<div class="tick"></div>
 
 <p>In order to use this Datastore-backed database, we need to change <code>api/index.js</code> in two ways: first, we need to <code>require</code> the right module, and then we need to deal with the asynchronous nature of the datastore (together with any possible errors). Therefore, replace <code>api/index.js</code> with the following:
 
@@ -318,15 +334,19 @@ api.put('/:id(\\w+)', bodyParser.text(), async (req, res) => {
 
 <p>Beside the <code>require</code> statement, the asynchrony, and error handling, not much has changed in that file.
 
+<div class="tick"></div>
+
 <p>If we now restart the app, we may see that there are no files available yet; when we create and save a file, we can test by restarting the app that the data persists.
 
-<p>The data is also available in the Google cloud console under Datastore -> Entities.
+<p>You can see the data stored as entities in the Google cloud console under Datastore -> Entities.
 
 </section>
 <section>
   <h2> 7. deploy into App Engine</h2>
 
 <p>We have been testing the app by running it locally on a Compute Engine VM. Now we can deploy it in App Engine so that Google manages the runtime environment, scaling, HTTPS, and so on, for us.
+
+<div class="tick"></div>
 
 <p>First, we need to prepare an application descriptor file <code>app.yaml</code>:
 
@@ -339,9 +359,17 @@ automatic_scaling:
   max_num_instances: 3
 </pre>
 
+<div class="tick"></div>
+
 <p>In the file, change the service name from "tutorial" to avoid any service name conflicts.
 
-<p>Finally, run <code>gcloud app deploy</code> and after some waiting, your app will be ready and running. You can find out the URL for your app with <code>gcloud app browse</code> or in the cloud console.
+<div class="tick"></div>
+
+<p>To deploy, run <code>gcloud app deploy</code> – this will take awhile.
+
+<div class="tick"></div>
+
+<p>After the deploy command finishes, your app will be ready and running. You can find out the URL for your app with <code>gcloud app browse</code> or in the cloud console.
 </section>
 
 <p>That's it. In this tutorial, you looked at implementing an API with Node.js and Express, storing its data in Datastore, and hosting it on App Engine. Hope you liked it.
