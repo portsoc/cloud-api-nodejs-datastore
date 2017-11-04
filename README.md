@@ -40,4 +40,4 @@ The code consists of the following components:
 
 ## Tutorial
 
-Please find the tutorial in [tutorial.html](https://cdn.rawgit.com/portsoc/clocoss-api-nodejs-datastore/master/tutorial.html)
+Please find the tutorial in [tutorial.html](https://jacek.soc.port.ac.uk/teaching/2017/clocoss/clocoss-api-nodejs-datastore/tutorial.html)
