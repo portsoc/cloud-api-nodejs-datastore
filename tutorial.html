@@ -373,7 +373,7 @@ automatic_scaling:
 
 <div class="tick"></div>
 
-<p>To deploy, run <code>gcloud app deploy</code> – this will take awhile.
+<p>To deploy, run <code>gcloud app deploy</code> – this will take a while.
 
 <div class="tick"></div>
 
@@ -497,7 +497,6 @@ automatic_scaling:
     tickCounter.className = 'tickcounter';
     if (typeof tickCounter.scrollIntoView === 'function') {
       tickCounter.addEventListener('click', scrollToFirstUnticked);
-      tickCounter.classList.add('clickable');
     }
     updateTickCounter();
   }
@@ -510,6 +509,13 @@ automatic_scaling:
       if (tick.checked) checked += 1;
     }
     if (checked) tickCounter.textContent = `${checked}/${ticks.length} done`;
+    if (checked < ticks.length) {
+      tickCounter.title = 'show the first unticked task';
+      tickCounter.classList.add('clickable');
+    } else {
+      tickCounter.title = '';
+      tickCounter.classList.remove('clickable');
+    }
   }
 
   function scrollToFirstUnticked() {
