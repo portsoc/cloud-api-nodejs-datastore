@@ -268,7 +268,7 @@ module.exports.get = async (id) => {
   return '';
 };
 
-module.exports.put = (id, val) => {
+module.exports.put = async (id, val) => {
   const entity = {
     key: key(id),
     data: { name: id, val },
@@ -362,6 +362,14 @@ automatic_scaling:
 <div class="tick"></div>
 
 <p>In the file, change the service name from "tutorial" to avoid any service name conflicts.
+
+<div class="tick"></div>
+
+<p>Second, we need to make sure App Engine knows how to start the app. Therefore, in the <code>package.json</code> file, replace the unnecessary "test" script line which says "Error: no test specified", with the following line:
+
+<pre>
+  "start": "node app.js"
+</pre>
 
 <div class="tick"></div>
 
