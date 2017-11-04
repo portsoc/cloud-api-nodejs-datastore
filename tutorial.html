@@ -389,6 +389,7 @@ automatic_scaling:
   window.addEventListener('load', tickSetup);
 
   let helpMessage;
+  let tickCounter;
 
   function tickSetup() {
     const tickStyle = document.createElement('style');
@@ -435,11 +436,28 @@ automatic_scaling:
         padding: .2em;
         background: #ffc;
       }
+      .tickcounter {
+        display: block;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        border-top: 1px solid black;
+        border-right: 1px solid black;
+        border-radius: 0 .3em 0 0;
+        padding: .2em .5em;
+        font-size: 75%;
+      }
+      .tickcounter.clickable {
+        cursor: pointer;
+      }
+      .tickcounter:empty {
+        display: none;
+      }
       `;
     document.head.appendChild(tickStyle);
     const ticks = document.querySelectorAll('.tick');
     let cnt = 0;
-    let allUnchecked = true;
+    let checked = 0;
     for (let tick of ticks) {
       if (tick.nodeName !== 'LABEL') {
         tick = tick.appendChild(document.createElement('label'));
@@ -451,20 +469,48 @@ automatic_scaling:
       tickbox.id = 'tick' + cnt;
       cnt += 1;
       try {
+        tickbox.addEventListener('change', tickOnChange);
         if (localStorage[window.location.pathname + ': ' + tickbox.id]) {
           tickbox.checked = true;
-          allUnchecked = false;
+          checked += 1;
         }
-        tickbox.addEventListener('change', tickOnChange);
       } catch (e) {
         // the access to localStorage can cause security errors which we'll ignore
       }
     }
 
-    if (ticks.length && allUnchecked) {
+    if (ticks.length && checked === 0) {
       helpMessage = ticks[0].appendChild(document.createElement('div'));
       helpMessage.className = 'help';
       helpMessage.textContent = "With these tick boxes you can track your progress; the page will remember what was checked.";
+    }
+
+    tickCounter = document.body.appendChild(document.createElement('div'));
+    tickCounter.className = 'tickcounter';
+    if (typeof tickCounter.scrollIntoView === 'function') {
+      tickCounter.addEventListener('click', scrollToFirstUnticked);
+      tickCounter.classList.add('clickable');
+    }
+    updateTickCounter();
+  }
+
+  function updateTickCounter() {
+    tickCounter.textContent = '';
+    const ticks = document.querySelectorAll('.tick input');
+    let checked = 0;
+    for (const tick of ticks) {
+      if (tick.checked) checked += 1;
+    }
+    if (checked) tickCounter.textContent = `${checked}/${ticks.length} done`;
+  }
+
+  function scrollToFirstUnticked() {
+    const ticks = document.querySelectorAll('.tick input');
+    for (const tick of ticks) {
+      if (!tick.checked) {
+        tick.parentElement.scrollIntoView({behavior: 'smooth'});
+        return;
+      }
     }
   }
 
@@ -473,11 +519,17 @@ automatic_scaling:
       helpMessage.remove();
       helpMessage = null;
     }
-    if (e.target.checked) {
-      localStorage[window.location.pathname + ': ' + e.target.id] = "true";
-    } else {
-      delete localStorage[window.location.pathname + ': ' + e.target.id];
+    try {
+      if (e.target.checked) {
+        localStorage[window.location.pathname + ': ' + e.target.id] = "true";
+      } else {
+        delete localStorage[window.location.pathname + ': ' + e.target.id];
+      }
     }
+    catch (e) {
+      // the access to localStorage can cause security errors which we'll ignore
+    }
+    updateTickCounter();
   }
 })();
 </script>
