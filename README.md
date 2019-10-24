@@ -23,7 +23,7 @@ For example, we might have two files:
  * file named "pets" contains `kitten, doggie, tortoise`
  * file named "message" contains `Hello World!`
 
-In the app, we can load either file and edit it, or we can create a new file.
+In the app, we can load either file and edit it, or we can create a new file. Note, though, that when first deployed, the app has no file in it yet.
 
 The code consists of the following components:
 
