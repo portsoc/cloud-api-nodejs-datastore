@@ -1,7 +1,7 @@
 {
-  "name": "clocoss-api-nodejs-datastore",
+  "name": "cloud-api-nodejs-datastore",
   "version": "0.1.0",
-  "description": "CLOCOSS example: an API in node.js/express backed by Datastore",
+  "description": "Cloud example: an API in node.js/express backed by Datastore",
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
@@ -9,14 +9,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/portsoc/clocoss-api-nodejs-datastore.git"
+    "url": "git+https://github.com/portsoc/cloud-api-nodejs-datastore.git"
   },
   "author": "Jacek Kopecky <jacek.kopecky@port.ac.uk>",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/portsoc/clocoss-api-nodejs-datastore/issues"
+    "url": "https://github.com/portsoc/cloud-api-nodejs-datastore/issues"
   },
-  "homepage": "https://github.com/portsoc/clocoss-api-nodejs-datastore#readme",
+  "homepage": "https://github.com/portsoc/cloud-api-nodejs-datastore#readme",
   "engines": {
     "node": "^10"
   },
