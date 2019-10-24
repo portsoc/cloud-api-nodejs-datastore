@@ -1,6 +1,8 @@
-# CLOCOSS example: API in Node.js/Express and Datastore
+# Cloud example: API in Node.js/Express and Datastore
 
 This is a simple example of a read/write API with database backing, intended for use in Google App Engine.
+
+The application is a simple store of textual data. It has a list of named _files_ whose content can be loaded, edited, and saved.
 
 The API is implemented in Node.js and Express, the database is either in-memory (for testing and demonstration), and in Datastore.
 
@@ -10,18 +12,16 @@ The API is implemented in Node.js and Express, the database is either in-memory 
 2. `npm install`
 3. To test that it works: `DBTYPE=inmemory npm start`
    * it will be available on port 8080
-4. To deploy in App Engine
-   1. change service name in `app.yaml`
-   2. change namespace in `api/db-datastore.js`
-   3. `gcloud app deploy`
+3. `gcloud app deploy`
+3. `gcloud app browse -s myfiles`
 
 ## Description
 
 The application is a simple store of textual data. It has a list of named _files_ whose content can be loaded, edited, and saved.
 
 For example, we might have two files:
- * `pets` contains `kitten, doggie, tortoise`
- * `message` contains `Hello World!`
+ * file named "pets" contains `kitten, doggie, tortoise`
+ * file named "message" contains `Hello World!`
 
 In the app, we can load either file and edit it, or we can create a new file.
 

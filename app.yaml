@@ -1,6 +1,2 @@
-runtime: nodejs
-env: flex
-service: jacek1
-automatic_scaling:
-  min_num_instances: 1
-  max_num_instances: 3
+runtime: nodejs10
+service: myfiles
