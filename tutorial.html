@@ -101,6 +101,8 @@ app.listen(port, (err) => {
 
 <p>You can test this app by running <code>node app</code> and connecting to your machine on port 8080. It will serve the static pages only, so you can see that the app can retrieve <code>/style.css</code> and <code>/script.js</code>. The file drop-down box will say "error" because we don't have an API yet.
 
+<p>Note: if your VM only has normal HTTP and HTTPS enabled, it won't allow port 8080. To run the app on port 80, you need to do  <code>sudo PORT=80 node app</code> and connect to your server without the <code>:8080</code> in the address.
+
 <p>For example, if your VM has the IP address 10.11.12.13, then you should reach <code>style.css</code> at <code>http://10.11.12.13:8080/style.css</code>
 
 </section>
