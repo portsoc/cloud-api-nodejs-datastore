@@ -41,3 +41,8 @@ The code consists of the following components:
 ## Tutorial
 
 Please find the tutorial in [tutorial.html](https://jacek.soc.port.ac.uk/teaching/2019/sse/cloud-api-nodejs-datastore/tutorial.html)
+
+### to do
+
+* highlight code examples with prism?
+* add dark mode?
