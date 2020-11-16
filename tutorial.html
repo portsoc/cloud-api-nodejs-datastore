@@ -3,9 +3,33 @@
 <title>Cloud Tutorial: API with Node.js and Datastore</title>
 <meta charset="utf-8">
 <style>
+
+:root {
+  --bg: #ddd;
+  --fg: #000;
+  --taskbg: #fff;
+  --taskdone: #00bb00;
+  --edge: #999;
+  --codebg: #fff7e5;
+  --link: #00f;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+  --bg: #333;
+  --fg: #EEE;
+  --taskbg: #111;
+  --taskdone: #00bb00;
+  --edge: #999;
+  --codebg: #003300;
+  --link: #0f0;
+  }
+}
+
+
 html {
-  background-color: #ddd;
-  color: black;
+  background-color: var(--bg);
+  color: var(--fg);
   margin: 0;
   padding: 0 1em 0 3em;
   font-family: sans-serif;
@@ -15,14 +39,14 @@ body {
   margin: 0 auto;
 }
 pre {
-  background: #fff7e5;
+  background: var(--codebg);
   padding: 1em;
   border-radius: .4em;
   overflow: auto;
   line-height: 1.4em;
 }
 code {
-  background: #fff7e5;
+  background: var(--codebg);
   padding: .2em .5em;
   border-radius: .2em;
   white-space: nowrap;
@@ -34,11 +58,11 @@ footer {
 
 .tick {
   position: relative;
-  border: thin solid grey;
+  border: thin solid var(--edge);
   border-radius: 0.4em;
   margin-bottom: 1em;
   padding: 0 4em 0 1em;
-  background-color: white;
+  background-color: var(--taskbg);
 }
 
 .tick > label {
@@ -66,18 +90,18 @@ footer {
   display: block;
   height: 1em;
   width: 1em;
-  border: 2px solid #bbb;
+  border: 2px solid var(--edge);
   border-radius: .2em;
 }
 .tick > label input:checked + .box:before {
-  background-color: #00bb00;
+  background-color: var(--taskdone);
   content: '✓';
   text-align: center;
   line-height: 1rem;
-  color: white;
+  color: var(--taskbg);
 }
 .tick > label:hover input + .box:before {
-  border-color: black;
+  border-color: var(--fg);
 }
 .tick > label .help {
   display: block;
@@ -88,18 +112,18 @@ footer {
   right: 2em;
   text-align: center;
   transform: translate(0,50%) translate(0,-0.625em) translate(0,-4px);
-  border: 1px solid black;
+  border: 1px solid var(--fg);
   border-radius: .4em;
   padding: .2em;
-  background: #ffc;
+  background: var(--taskdone);
 }
 .tickcounter {
   display: block;
   position: fixed;
   bottom: 0;
   left: 0;
-  border-top: 1px solid black;
-  border-right: 1px solid black;
+  border-top: 1px solid var(--fg);
+  border-right: 1px solid var(--fg);
   border-radius: 0 .3em 0 0;
   padding: .2em .5em;
   font-size: 75%;
@@ -109,6 +133,10 @@ footer {
 }
 .tickcounter:empty {
   display: none;
+}
+
+a {
+  color: var(--link);
 }
 </style>
 
