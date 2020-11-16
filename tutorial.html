@@ -47,7 +47,7 @@ footer {
 
 <p>You will need Node.js version 10 or later, <code>git</code>, and the <code>gcloud</code> tools.
 
-<p>It may be easiest to follow this tutorial on a Compute Engine VM with HTTP networking and with full access to the cloud APIs (these are parameters you can set when creating the VM).
+<p>You should follow this tutorial on a Compute Engine VM with HTTP networking and full access to the cloud APIs (these are parameters you can set when creating the VM).
 
 </section>
 <section>
@@ -99,11 +99,9 @@ app.listen(port, (err) => {
 
 <div class="tick"></div>
 
-<p>You can test this app by running <code>node app</code> and connecting to your machine on port 8080. It will serve the static pages only, so you can see that the app can retrieve <code>/style.css</code> and <code>/script.js</code>. The file drop-down box will say "error" because we don't have an API yet.
+<p>You can test this app on your VM by running <code>sudo PORT=80 node app</code> and connecting to your machine's external IP address. It will serve the static pages only, so you can see that the app can retrieve <code>/style.css</code> and <code>/script.js</code>. The file drop-down box will say "error" because we don't have an API yet.
 
-<p>Note: if your VM only has normal HTTP and HTTPS enabled, it won't allow port 8080. To run the app on port 80, you need to do  <code>sudo PORT=80 node app</code> and connect to your server without the <code>:8080</code> in the address.
-
-<p>For example, if your VM has the IP address 10.11.12.13, then you should reach <code>style.css</code> at <code>http://10.11.12.13:8080/style.css</code>
+<p>For example, if your VM has the IP address 10.11.12.13, then you should reach <code>style.css</code> at <code>http://10.11.12.13/style.css</code>. Note that it has to be <code>http:</code> and not <code>https:</code> – the server code does not support HTTPS.
 
 </section>
 <section>
@@ -240,7 +238,9 @@ api.put('/:id(\\w+)', bodyParser.text(), (req, res) => {
 
 <div class="tick"></div>
 
-<p>Now we can use a persistent database for our files. We will use Google Datastore; to install the Node.js package, run <code>npm install @google-cloud/datastore</code>
+<p>Now we can use a persistent database for our files. We will use Google Datastore. If you haven't done so already, you will need to enable Datastore in the <a href="https://console.cloud.google.com/datastore">Google cloud console under Datastore</a>. Make sure for it to run in <em>Datastore mode</em> and not <em>native</em>.
+
+<p>To be able to access Datastore from our app, we need to install the Node.js package: run <code>npm install @google-cloud/datastore</code>
 
 <div class="tick"></div>
 
