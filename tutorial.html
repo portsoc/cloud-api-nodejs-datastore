@@ -8,6 +8,7 @@ html {
   color: black;
   margin: 0;
   padding: 0 1em 0 3em;
+  font-family: sans-serif;
 }
 body {
   max-width: 40em;
@@ -25,9 +26,6 @@ code {
   padding: .2em .5em;
   border-radius: .2em;
   white-space: nowrap;
-}
-h1,h2,h3,h4,h5,h6 {
-  font-family: sans-serif;
 }
 footer {
   margin: 2em 0;
@@ -51,6 +49,7 @@ footer {
   bottom: 0;
   top: 0;
   width: 3em;
+  cursor: pointer;
 }
 .tick > label input {
   display: none;
@@ -75,13 +74,14 @@ footer {
   content: '✓';
   text-align: center;
   line-height: 1rem;
-  font-family: sans-serif;
   color: white;
+}
+.tick > label:hover input + .box:before {
+  border-color: black;
 }
 .tick > label .help {
   display: block;
   width: 12em;
-  font-family: sans-serif;
   font-size: 80%;
   position: absolute;
   bottom: 0;
@@ -134,7 +134,7 @@ footer {
   <pre>
 curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
 sudo apt-get install -y nodejs git
-  </pre>
+</pre>
 </section>
 
 </section>
@@ -182,7 +182,7 @@ app.listen(port, (err) => {
   if (err) console.log('error', err);
   else console.log(`app listening on port ${port}`);
 });
-  </pre>
+</pre>
 </section>
 
 <section class="tick">
@@ -269,7 +269,8 @@ const db = require('./db-inmemory');
 
 api.get('/', (req, res) => {
   res.json(db.list());
-});</pre>
+});
+</pre>
   </section>
 
   <section class="tick">
@@ -294,7 +295,8 @@ module.exports.get = (id) => {
 
 module.exports.put = (id, val) => {
   data[id] = val;
-};</pre>
+};
+</pre>
 </section>
 
 <section class="tick">
@@ -385,7 +387,8 @@ module.exports.put = async (id, val) => {
     data: { name: id, val },
   }
   await ds.save(entity);
-};</pre>
+};
+</pre>
 
   <p>Data stored in Datastore is seen as <em>entities</em>. We use one entity per file; each entity has two properties: <code>name</code> and <code>val</code>. Every entity is identified by a <em>key</em> which has a <em>kind</em> and an ID; we named the kind "files" and we use the file name as its ID.
 
@@ -439,7 +442,7 @@ api.put('/:id(\\w+)', bodyParser.text(), async (req, res) => {
     res.sendStatus(500);
   }
 });
-  </pre>
+</pre>
 
   <p>Beside the <code>require</code> statement, the asynchrony, and error handling, not much has changed in that file.
 </section>
@@ -474,7 +477,8 @@ service: tutorial
     <p>Second, we need to make sure App Engine knows how to start the app. Therefore, in the <code>package.json</code> file, replace the unnecessary "test" script line which says "Error: no test specified", with the following line:
 
     <pre>
-"start": "node app.js"</pre>
+"start": "node app.js"
+</pre>
   </section>
 
 
