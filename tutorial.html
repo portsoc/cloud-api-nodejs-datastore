@@ -45,9 +45,14 @@ footer {
 
 <div class="tick"></div>
 
-<p>You will need Node.js version 10 or later, <code>git</code>, and the <code>gcloud</code> tools.
-
 <p>You should follow this tutorial on a Compute Engine VM with HTTP networking and full access to the cloud APIs (these are parameters you can set when creating the VM).
+
+<p>You will need Node.js version 10 or later, <code>git</code>, and the <code>gcloud</code> tools. On a Compute Engine VM, <code>gcloud</code> tools are installed by default; so we only need to install the other two:
+
+<pre>
+curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
+sudo apt-get install -y nodejs git
+</pre>
 
 </section>
 <section>
