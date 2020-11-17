@@ -40,5 +40,5 @@ The code consists of the following components:
 
 ## Tutorial
 
-This [tutorial](https://portsoc.github.io/cloud-api-nodejs-datastore/) will walk you through the creation of a datastore-powered cloud app.
+This [tutorial](https://portsoc.github.io/cloud-api-nodejs-datastore/index.html) will walk you through the creation of a datastore-powered cloud app.
 
