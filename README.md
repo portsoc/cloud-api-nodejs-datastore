@@ -40,9 +40,5 @@ The code consists of the following components:
 
 ## Tutorial
 
-Please find the tutorial in [tutorial.html](https://jacek.soc.port.ac.uk/teaching/2019/sse/cloud-api-nodejs-datastore/tutorial.html)
+This [tutorial](https://portsoc.github.io/cloud-api-nodejs-datastore/) will walk you through the creation of a datastore-powered cloud app.
 
-### to do
-
-* highlight code examples with prism?
-* add dark mode?
