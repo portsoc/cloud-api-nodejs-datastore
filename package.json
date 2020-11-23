@@ -21,7 +21,7 @@
     "node": "^10"
   },
   "dependencies": {
-    "@google-cloud/datastore": "^1.4.2",
+    "@google-cloud/datastore": "^6.3.0",
     "body-parser": "^1.18.2",
     "express": "^4.16.2"
   },
